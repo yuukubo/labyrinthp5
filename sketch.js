@@ -1,6 +1,6 @@
 // labyrinthp5
 
-let game_title = "* labyrinthp5 * c2.2";
+let game_title = "* labyrinthp5 * c3.0";
 let game_title_X, game_title_Y;
 
 let canvas_W, canvas_H;
@@ -11,6 +11,8 @@ let [wall_X, wall_Y, wall_W, wall_H] = [[], [], [], []];
 let wall_RGB = [];
 let [floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4] = [[], [], [], [], [], [], [], []];
 let floor_RGB = [];
+let [ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4] = [[], [], [], [], [], [], [], []];
+let ceil_RGB = [];
 
 function setup() {
   set_val();
@@ -22,6 +24,7 @@ function draw() {
   background(background_RGB[0], background_RGB[1], background_RGB[2]);
   set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
   set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4);
+  set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
   set_game_title();
 }
 
@@ -65,6 +68,18 @@ function set_val() {
     floor_Y4.push(wall_Y[i+1] + wall_W[i+1] / 2);
     floor_RGB.push([40 - 5 * i, 40 - 5 * i, 40 - 5 * i]);
   }
+
+  for (let i=0; i<2; i++) {
+    ceil_X1.push(wall_X[i] - wall_W[i] / 2);
+    ceil_Y1.push(wall_Y[i] - wall_W[i] / 2);
+    ceil_X2.push(wall_X[i] + wall_W[i] / 2);
+    ceil_Y2.push(wall_Y[i] - wall_W[i] / 2);
+    ceil_X3.push(wall_X[i+1] + wall_W[i+1] / 2);
+    ceil_Y3.push(wall_Y[i+1] - wall_W[i+1] / 2);
+    ceil_X4.push(wall_X[i+1] - wall_W[i+1] / 2);
+    ceil_Y4.push(wall_Y[i+1] - wall_W[i+1] / 2);
+    ceil_RGB.push([40 - 5 * i, 40 - 5 * i, 40 - 5 * i]);
+  }
 }
 
 function windowResized() {
@@ -72,6 +87,8 @@ function windowResized() {
   wall_RGB = [];
   [floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4] = [[], [], [], [], [], [], [], []];
   floor_RGB = [];
+  [ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4] = [[], [], [], [], [], [], [], []];
+  ceil_RGB = [];
   set_val();
   resizeCanvas(canvas_W, canvas_H);
   console.log("resize(w, h) : " + canvas_W + ", " + canvas_H);
@@ -87,6 +104,7 @@ function set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H) {
     fill(wall_RGB[i][0], wall_RGB[i][1], wall_RGB[i][2]);
     rect(wall_X[i], wall_Y[i], wall_W[i], wall_H[i]);
   }
+  pop();
 }
 
 function set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4) {
@@ -97,5 +115,29 @@ function set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, 
   for (let i=0; i < floor_X1.length; i++) {
     fill(floor_RGB[i][0], floor_RGB[i][1], floor_RGB[i][2]);
     quad(floor_X1[i], floor_Y1[i], floor_X2[i], floor_Y2[i], floor_X3[i], floor_Y3[i], floor_X4[i], floor_Y4[i]);
+    push();
+      stroke(background_RGB[0], background_RGB[1], background_RGB[2]);
+      line(floor_X1[i], floor_Y1[i], floor_X2[i], floor_Y2[i]);
+      line(floor_X3[i], floor_Y3[i], floor_X4[i], floor_Y4[i]);
+    pop();
   }
+  pop();
+}
+
+function set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4) {
+  push();
+//  noStroke();
+  stroke(255);
+  strokeWeight(1);
+  rectMode(CENTER);
+  for (let i=0; i < ceil_X1.length; i++) {
+    fill(ceil_RGB[i][0], ceil_RGB[i][1], ceil_RGB[i][2]);
+    quad(ceil_X1[i], ceil_Y1[i], ceil_X2[i], ceil_Y2[i], ceil_X3[i], ceil_Y3[i], ceil_X4[i], ceil_Y4[i]);
+    push();
+      stroke(background_RGB[0], background_RGB[1], background_RGB[2]);
+      line(ceil_X1[i], ceil_Y1[i], ceil_X2[i], ceil_Y2[i]);
+      line(ceil_X3[i], ceil_Y3[i], ceil_X4[i], ceil_Y4[i]);
+    pop();
+  }
+  pop();
 }
