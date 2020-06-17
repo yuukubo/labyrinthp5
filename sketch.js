@@ -1,10 +1,13 @@
 // labyrinthp5
 
-let game_title = "* labyrinthp5 * c4.11";
+let game_title = "* labyrinthp5 * c5.2";
 let game_title_X, game_title_Y;
+
+let game_menu_X, game_menu_Y;
 
 let canvas_W, canvas_H;
 let is_init = 1;
+let is_move_random = 1;
 let background_RGB;
 
 let [wall_X, wall_Y, wall_W, wall_H] = [[], [], [], []];
@@ -27,29 +30,55 @@ function draw() {
   set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
   set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4);
   set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
+  set_game_menu();
   set_game_title();
 }
 
 function set_game_title() {
   push();
-  textSize(10);
+  textSize(14);
   textFont("Comic Sans MS");
   textAlign(CENTER, CENTER);
   noStroke();
-  fill(100);
+  fill(200);
   text(game_title, game_title_X, game_title_Y);
+  pop();
+}
+
+function set_game_menu() {
+  push();
+  textSize(14);
+  textFont("Comic Sans MS");
+  textAlign(CENTER, CENTER);
+  noStroke();
+  fill(200);
+  text("** menu **", game_menu_X, game_menu_Y * 1 / 10);
+  if (canvas_W > 720) {
+    for (let i=0; i<2; i++) {
+      text("No " + (i+1) + " is corner left  ? : " + is_corner_l[i], game_menu_X, game_menu_Y * (2+i) / 10);
+      text("No " + (i+1) + " is corner right ? : " + is_corner_r[i], game_menu_X, game_menu_Y * (4+i) / 10);
+    }
+    text(" tap to random move", game_menu_X, game_menu_Y * 10 / 10);
+  }
   pop();
 }
 
 function set_val() {
   if (is_init) {
     background_RGB = [50, 50, 50];
-
     is_init = 0;
   }
-
+  if (is_move_random) {
+    for (let i=0; i<2; i++) {
+      is_corner_l.push(random([1, 0]));
+      is_corner_r.push(random([1, 0]));
+      console.log("No " + (i+1) + " is corner left  ? : " + is_corner_l[i]);
+      console.log("No " + (i+1) + " is corner right ? : " + is_corner_r[i]);
+    }
+    is_move_random = 0;
+  }
   [canvas_W, canvas_H] = [windowWidth - 20, windowHeight - 20];
-  [game_title_X, game_title_Y] = [canvas_W * 36 / 40, canvas_H * 29 / 30]
+  [game_title_X, game_title_Y] = [canvas_W * 34 / 40, canvas_H * 29 / 30]
 
   for (let i=0; i<3; i++) {
     wall_X.push(canvas_W / 2);
@@ -57,13 +86,6 @@ function set_val() {
     wall_W.push(canvas_H * (4 - i) / 5);
     wall_H.push(wall_W[i]);
     wall_RGB.push([40 - 10 * i, 40 - 10 * i, 40 - 10 * i]);
-  }
-
-  for (let i=0; i<2; i++) {
-    is_corner_l.push(random([1, 0]));
-    is_corner_r.push(random([1, 0]));
-    console.log("No " + (i+1) + " is corner left  ? : " + is_corner_l[i]);
-    console.log("No " + (i+1) + " is corner right ? : " + is_corner_r[i]);
   }
 
   for (let i=0; i<2; i++) {
@@ -109,19 +131,27 @@ function set_val() {
     }
     ceil_RGB.push([40 - 5 * i, 40 - 5 * i, 40 - 5 * i]);
   }
+  game_menu_X = floor_X2[0] + (canvas_W - floor_X2[0]) / 2;
+  game_menu_Y = canvas_H / 2;
 }
 
 function windowResized() {
+  reset_wall();
+  set_val();
+  resizeCanvas(canvas_W, canvas_H);
+  console.log("resize(w, h) : " + canvas_W + ", " + canvas_H);
+  set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
+  set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4);
+  set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
+}
+
+function reset_wall() {
   [wall_X, wall_Y, wall_W, wall_H] = [[], [], [], []];
   wall_RGB = [];
   [floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4] = [[], [], [], [], [], [], [], []];
   floor_RGB = [];
   [ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4] = [[], [], [], [], [], [], [], []];
   ceil_RGB = [];
-  set_val();
-  resizeCanvas(canvas_W, canvas_H);
-  console.log("resize(w, h) : " + canvas_W + ", " + canvas_H);
-  set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
 }
 
 function set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H) {
@@ -169,4 +199,27 @@ function set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3
     pop();
   }
   pop();
+}
+
+function move_random() {
+  is_move_random = 1;
+  is_corner_l = [];
+  is_corner_r = [];
+  console.log("random move");
+  reset_wall();
+  set_val();
+  set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
+  set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4);
+  set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
+}
+
+function touchStarted() {
+//  mousePressed();
+}
+function touchEnd() {
+  mousePressed();
+}
+
+function mousePressed() {
+  move_random();
 }
