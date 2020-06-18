@@ -1,6 +1,6 @@
 // labyrinthp5
 
-let game_title = "* labyrinthp5 * c5.2";
+let game_title = "* labyrinthp5 * c6.1";
 let game_title_X, game_title_Y;
 
 let game_menu_X, game_menu_Y;
@@ -18,8 +18,11 @@ let [ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4] = [
 let ceil_RGB = [];
 let is_corner_l = [];
 let is_corner_r = [];
+let is_touch = 0;
 
 function setup() {
+  window.addEventListener("touchstart", function (event) { event.preventDefault(); }, { passive: false });
+  window.addEventListener("touchmove",  function (event) { event.preventDefault(); }, { passive: false });
   set_val();
   createCanvas(canvas_W, canvas_H);
   rectMode(CENTER);
@@ -32,6 +35,37 @@ function draw() {
   set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
   set_game_menu();
   set_game_title();
+  if (1 == is_touch) {
+    touched();
+    is_touch = 0;
+  }
+  set_pointer();
+}
+
+function set_pointer() {
+  push();
+  noStroke();
+  fill(255, 255, 0)
+  circle(mouseX, mouseY, 4);
+  pop();
+}
+
+function touchStarted() {
+  is_touch = 1;
+}
+
+function touched() {
+  mousePressed();
+  is_touch = 0;
+  console.log("touched at : " + mouseX + " , " + mouseY);
+}
+
+function touchEnded() {
+  is_touch = 0;
+}
+  
+function mousePressed() {
+  move_random();
 }
 
 function set_game_title() {
@@ -53,12 +87,15 @@ function set_game_menu() {
   noStroke();
   fill(200);
   text("** menu **", game_menu_X, game_menu_Y * 1 / 10);
-  if (canvas_W > 720) {
-    for (let i=0; i<2; i++) {
+  if ((canvas_W - floor_X2[0]) > 150) {
+    push();
+    textSize(10);
+      for (let i=0; i<2; i++) {
       text("No " + (i+1) + " is corner left  ? : " + is_corner_l[i], game_menu_X, game_menu_Y * (2+i) / 10);
       text("No " + (i+1) + " is corner right ? : " + is_corner_r[i], game_menu_X, game_menu_Y * (4+i) / 10);
     }
     text(" tap to random move", game_menu_X, game_menu_Y * 10 / 10);
+    pop();
   }
   pop();
 }
@@ -78,6 +115,9 @@ function set_val() {
     is_move_random = 0;
   }
   [canvas_W, canvas_H] = [windowWidth - 20, windowHeight - 20];
+  if (canvas_W < canvas_H) {
+    canvas_H = canvas_W;
+  }
   [game_title_X, game_title_Y] = [canvas_W * 34 / 40, canvas_H * 29 / 30]
 
   for (let i=0; i<3; i++) {
@@ -211,15 +251,4 @@ function move_random() {
   set_wall(wall_RGB, wall_X, wall_Y, wall_W, wall_H);
   set_floor(floor_RGB, floor_X1, floor_Y1, floor_X2, floor_Y2, floor_X3, floor_Y3, floor_X4, floor_Y4);
   set_ceil(ceil_RGB, ceil_X1, ceil_Y1, ceil_X2, ceil_Y2, ceil_X3, ceil_Y3, ceil_X4, ceil_Y4);
-}
-
-function touchStarted() {
-//  mousePressed();
-}
-function touchEnd() {
-  mousePressed();
-}
-
-function mousePressed() {
-  move_random();
 }
